@@ -11,38 +11,31 @@ const Layout = ({ onLogout, user }) => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null)
-    const [mobileOpen, setMobileOpen] = useState(false)  // ← ADDED
+    const [mobileOpen, setMobileOpen] = useState(false)
 
     const fetchTasks = useCallback(async () => {
         setLoading(true)
         setError(null)
-
         try {
             const token = localStorage.getItem('token')
             if (!token) throw new Error("No auth token found")
-
             const { data } = await axios.get("http://localhost:4001/api/tasks", {
                 headers: { Authorization: `Bearer ${token}` }
             })
-
             const arr = Array.isArray(data) ? data :
                 Array.isArray(data?.tasks) ? data.tasks :
                     Array.isArray(data?.data) ? data.data : []
             setTasks(arr)
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err);
             setError(err.message || "Could not load tasks")
             if (err.response?.status === 401) onLogout()
         } finally {
             setLoading(false)
         }
-
     }, [onLogout])
 
-    useEffect(() => {
-        fetchTasks()
-    }, [fetchTasks])
+    useEffect(() => { fetchTasks() }, [fetchTasks])
 
     const stats = useMemo(() => {
         const completedTasks = tasks.filter(t =>
@@ -50,33 +43,27 @@ const Layout = ({ onLogout, user }) => {
             t.completed === 1 ||
             (typeof t.completed === "string" && t.completed.toLowerCase() === 'yes')
         ).length
-
         const totalCount = tasks.length
         const pendingCount = totalCount - completedTasks
-        const completionPercentage = totalCount ?
-            Math.round((completedTasks / totalCount) * 100) : 0
-
+        const completionPercentage = totalCount ? Math.round((completedTasks / totalCount) * 100) : 0
         return { totalCount, completedTasks, pendingCount, completionPercentage }
-
     }, [tasks])
 
-    const StateCard = ({ title, value, icons: Icon }) => {
-        return (
-            <div className='p-2 sm:p-3 rounded-xl bg-white shadow-sm border border-purple-100 hover:shadow-md transition-all duration-300 group'>
-                <div className='flex items-center gap-2'>
-                    <div className='p-1.5 rounded-lg bg-linear-to-br from-fuchsia-500/10 to-purple-500/10 group-hover:from-fuchsia-500/20 group-hover:to-purple-500/20'>
-                        <Icon className='w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500' />
-                    </div>
-                    <div className='min-w-0'>
-                        <p className='text-lg sm:text-xl font-bold bg-linear-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent'>
-                            {value}
-                        </p>
-                        <p className='text-xs text-gray-500 font-medium'>{title}</p>
-                    </div>
+    const StateCard = ({ title, value, icons: Icon }) => (
+        <div className='p-2 sm:p-3 rounded-xl bg-white shadow-sm border border-purple-100 hover:shadow-md transition-all duration-300 group'>
+            <div className='flex items-center gap-2'>
+                <div className='p-1.5 rounded-lg bg-gradient-to-br from-fuchsia-500/10 to-purple-500/10 group-hover:from-fuchsia-500/20 group-hover:to-purple-500/20 shrink-0'>
+                    <Icon className='w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500' />
+                </div>
+                <div className='min-w-0'>
+                    <p className='text-base sm:text-lg font-bold bg-gradient-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent'>
+                        {value}
+                    </p>
+                    <p className='text-xs text-gray-500 font-medium truncate'>{title}</p>
                 </div>
             </div>
-        )
-    }
+        </div>
+    )
 
     if (error) return (
         <div className='min-h-screen bg-gray-50 p-6 flex items-center justify-center'>
@@ -91,112 +78,106 @@ const Layout = ({ onLogout, user }) => {
     )
 
     return (
-        <div className='min-h-screen bg-gray-50'>
+        <div className='min-h-screen bg-gray-50 overflow-x-hidden'>
 
-            {/* NAVBAR */}
-            <Navbar
-                user={user}
-                onLogout={onLogout}
-                onMenuClick={() => setMobileOpen(true)}
-            />
+            <Navbar user={user} onLogout={onLogout} onMenuClick={() => setMobileOpen(true)} />
+            <Sidebar user={user} tasks={tasks} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
-            {/* SIDEBAR */}
-            <Sidebar
-                user={user}
-                tasks={tasks}
-                mobileOpen={mobileOpen}
-                setMobileOpen={setMobileOpen}
-            />
+            {/*
+                BREAKPOINT STRATEGY:
+                mobile  <640px  : full width, no offset, single col, small padding
+                tablet  640-1023: full width, no offset, single col, medium padding
+                desktop 1024px+ : lg:ml-64 sidebar offset, single col content
+                xl      1280px+ : 3-col grid — content takes 2 cols, stats takes 1
+            */}
+            <div className='pt-16 lg:ml-64 transition-all duration-300'>
+                <div className='p-3 sm:p-4 lg:p-6'>
+                    <div className='grid grid-cols-1 xl:grid-cols-3 xl:gap-6'>
 
-            {/* MAIN CONTENT */}
-            <div className='lg:ml-64 pt-16 p-3 sm:p-4 md:p-6 transition-all duration-300'>
-                <div className='grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6'>
-
-                    {/* LEFT - PAGE CONTENT */}
-                    <div className='xl:col-span-2 space-y-3 sm:space-y-4'>
-                        <Outlet context={{ tasks, refreshTasks: fetchTasks }} />
-                    </div>
-
-                    {/* RIGHT - STATS PANEL */}
-                    <div className='xl:col-span-1 space-y-4 sm:space-y-6'>
-
-                        {/* STATISTICS */}
-                        <div className='bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-purple-100'>
-                            <h3 className='text-base sm:text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2'>
-                                <TrendingUp className='w-4 h-4 sm:w-5 sm:h-5 text-purple-500' />
-                                Task Statistics
-                            </h3>
-                            <div className='grid grid-cols-2 gap-3 mb-4'>
-                                <StateCard title='Total Tasks' value={stats.totalCount} icons={Circle} />
-                                <StateCard title='Completed' value={stats.completedTasks} icons={Circle} />
-                                <StateCard title='Pending' value={stats.pendingCount} icons={Circle} />
-                                <StateCard title='Completion Rate' value={`${stats.completionPercentage}%`} icons={Zap} />
-                            </div>
-
-                            <hr className='my-3 sm:my-4 border-purple-100' />
-
-                            {/* PROGRESS BAR */}
-                            <div className='space-y-2 sm:space-y-3'>
-                                <div className='flex items-center justify-between text-gray-700'>
-                                    <span className='text-xs sm:text-sm font-medium flex items-center gap-1.5'>
-                                        <Circle className='w-2.5 h-2.5 sm:h-3 text-purple-500 fill-purple-500' />
-                                        Task Progress
-                                    </span>
-                                    <span className='text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 sm:px-2 rounded-full'>
-                                        {stats.completedTasks}/{stats.totalCount}
-                                    </span>
-                                </div>
-                                <div className='flex gap-1.5 items-center'>
-                                    <div className='flex-1 h-2 sm:h-3 bg-purple-100 rounded-full overflow-hidden'>
-                                        <div
-                                            className='h-full bg-linear-to-r from-fuchsia-500 to-purple-600 transition-all duration-500'
-                                            style={{ width: `${stats.completionPercentage}%` }}>
-                                        </div>
-                                    </div>
-                                    <span className='text-xs font-medium text-purple-600'>
-                                        {stats.completionPercentage}%
-                                    </span>
-                                </div>
-                            </div>
+                        {/* MAIN CONTENT — full width on mobile/tablet/desktop, 2/3 on xl */}
+                        <div className='xl:col-span-2 min-w-0'>
+                            <Outlet context={{ tasks, refreshTasks: fetchTasks }} />
                         </div>
 
-                        {/* RECENT ACTIVITY */}
-                        <div className='bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-purple-100'>
-                            <h3 className='text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 flex items-center gap-2'>
-                                <Clock className='w-4 h-4 sm:w-5 sm:h-5 text-purple-500' />
-                                Recent Activity
-                            </h3>
-                            <div className='space-y-2 sm:space-y-3'>
-                                {tasks.slice(0, 3).map((task) => (
-                                    <div key={task._id || task.id}
-                                        className='flex items-center justify-between p-2 sm:p-3 hover:bg-purple-50/50 rounded-lg transition-colors duration-200 border border-transparent hover:border-purple-100'>
-                                        <div className='flex-1 min-w-0'>
-                                            <p className='text-sm font-medium text-gray-700 wrap-break-words'>
-                                                {task.title}
-                                            </p>
-                                            <p className='text-xs text-gray-500 mt-0.5'>
-                                                {task.createdAt ? new Date(task.createdAt).toLocaleDateString() : "No date"}
-                                            </p>
-                                        </div>
-                                        <span className={`px-2 py-1 text-xs rounded-full shrink-0 ml-2
-                                            ${task.completed ? 'bg-green-100 text-green-700' : 'bg-fuchsia-100 text-fuchsia-700'}`}>
-                                            {task.completed ? 'Done' : 'Pending'}
+                        {/* STATS PANEL — stacks below content on <xl, beside on xl+ */}
+                        <div className='xl:col-span-1 space-y-4 mt-4 xl:mt-0'>
+
+                            {/* STATISTICS */}
+                            <div className='bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-purple-100'>
+                                <h3 className='text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 flex items-center gap-2'>
+                                    <TrendingUp className='w-4 h-4 sm:w-5 sm:h-5 text-purple-500 shrink-0' />
+                                    Task Statistics
+                                </h3>
+                                <div className='grid grid-cols-2 gap-2 sm:gap-3 mb-4'>
+                                    <StateCard title='Total Tasks'     value={stats.totalCount}                  icons={Circle} />
+                                    <StateCard title='Completed'       value={stats.completedTasks}              icons={Circle} />
+                                    <StateCard title='Pending'         value={stats.pendingCount}                icons={Circle} />
+                                    <StateCard title='Completion Rate' value={`${stats.completionPercentage}%`}  icons={Zap}    />
+                                </div>
+
+                                <hr className='my-3 border-purple-100' />
+
+                                <div className='space-y-2'>
+                                    <div className='flex items-center justify-between'>
+                                        <span className='text-xs sm:text-sm font-medium text-gray-700 flex items-center gap-1.5'>
+                                            <Circle className='w-2.5 h-2.5 text-purple-500 fill-purple-500' />
+                                            Task Progress
+                                        </span>
+                                        <span className='text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full'>
+                                            {stats.completedTasks}/{stats.totalCount}
                                         </span>
                                     </div>
-                                ))}
-
-                                {tasks.length === 0 && (
-                                    <div className='text-center py-4 sm:py-6 px-2'>
-                                        <div className='w-12 h-12 sm:h-16 mx-auto sm:mb-4 rounded-full bg-purple-100 flex items-center justify-center'>
-                                            <Clock className='w-6 h-6 sm:w-8 sm:h-8 text-purple-500' />
+                                    <div className='flex gap-2 items-center'>
+                                        <div className='flex-1 h-2 sm:h-3 bg-purple-100 rounded-full overflow-hidden'>
+                                            <div
+                                                className='h-full bg-gradient-to-r from-fuchsia-500 to-purple-600 transition-all duration-500'
+                                                style={{ width: `${stats.completionPercentage}%` }}
+                                            />
                                         </div>
-                                        <p className='text-sm text-gray-500'>No recent activity</p>
-                                        <p className='text-xs text-gray-400 mt-1'>Tasks will appear here</p>
+                                        <span className='text-xs font-medium text-purple-600 shrink-0'>
+                                            {stats.completionPercentage}%
+                                        </span>
                                     </div>
-                                )}
+                                </div>
                             </div>
-                        </div>
 
+                            {/* RECENT ACTIVITY */}
+                            <div className='bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-purple-100'>
+                                <h3 className='text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 flex items-center gap-2'>
+                                    <Clock className='w-4 h-4 sm:w-5 sm:h-5 text-purple-500 shrink-0' />
+                                    Recent Activity
+                                </h3>
+                                <div className='space-y-2'>
+                                    {tasks.slice(0, 3).map((task) => (
+                                        <div key={task._id || task.id}
+                                            className='flex items-center justify-between p-2 sm:p-3 hover:bg-purple-50/50 rounded-lg transition-colors border border-transparent hover:border-purple-100'>
+                                            <div className='flex-1 min-w-0 mr-2'>
+                                                <p className='text-xs sm:text-sm font-medium text-gray-700 truncate'>{task.title}</p>
+                                                <p className='text-xs text-gray-400 mt-0.5'>
+                                                    {task.createdAt ? new Date(task.createdAt).toLocaleDateString() : "No date"}
+                                                </p>
+                                            </div>
+                                            <span className={`px-2 py-0.5 text-xs rounded-full shrink-0 font-medium ${
+                                                task.completed ? 'bg-green-100 text-green-700' : 'bg-fuchsia-100 text-fuchsia-700'
+                                            }`}>
+                                                {task.completed ? 'Done' : 'Pending'}
+                                            </span>
+                                        </div>
+                                    ))}
+
+                                    {tasks.length === 0 && (
+                                        <div className='text-center py-6'>
+                                            <div className='w-12 h-12 mx-auto mb-3 rounded-full bg-purple-100 flex items-center justify-center'>
+                                                <Clock className='w-6 h-6 text-purple-500' />
+                                            </div>
+                                            <p className='text-sm text-gray-500'>No recent activity</p>
+                                            <p className='text-xs text-gray-400 mt-1'>Tasks will appear here</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>

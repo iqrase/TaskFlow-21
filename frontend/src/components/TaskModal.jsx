@@ -64,12 +64,15 @@ const TaskModal = ({ onClose, onSave, task }) => {
     }
 
     return (
-        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm'>
-            <div className='bg-white rounded-2xl shadow-xl w-full max-w-md'>
+        // ✅ FIX: px-3 on mobile so modal has breathing room; items-end on mobile so it slides up from bottom naturally
+        <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm'>
+
+            {/* ✅ FIX: rounded only top corners on mobile (bottom-sheet style), full rounded on sm+ */}
+            <div className='bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md max-h-[92vh] overflow-y-auto'>
 
                 {/* Header */}
-                <div className='flex items-center justify-between p-5 border-b border-purple-100'>
-                    <h2 className='text-lg font-bold text-gray-800'>
+                <div className='flex items-center justify-between px-4 py-4 sm:p-5 border-b border-purple-100 sticky top-0 bg-white z-10'>
+                    <h2 className='text-base sm:text-lg font-bold text-gray-800'>
                         {task ? 'Edit Task' : 'Add New Task'}
                     </h2>
                     <button onClick={onClose}
@@ -79,7 +82,7 @@ const TaskModal = ({ onClose, onSave, task }) => {
                 </div>
 
                 {/* Body */}
-                <div className='p-5 space-y-4'>
+                <div className='px-4 py-4 sm:p-5 space-y-4'>
 
                     {error && (
                         <div className='text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2'>
@@ -99,7 +102,7 @@ const TaskModal = ({ onClose, onSave, task }) => {
                                 value={formData.title}
                                 onChange={handleChange}
                                 placeholder='Enter task title...'
-                                className='flex-1 text-sm outline-none text-gray-700 placeholder-gray-400'
+                                className='flex-1 text-sm outline-none text-gray-700 placeholder-gray-400 w-full'
                             />
                         </div>
                     </div>
@@ -140,18 +143,19 @@ const TaskModal = ({ onClose, onSave, task }) => {
                         <label className='text-sm font-medium text-gray-700 mb-1 block'>
                             Due Date
                         </label>
-                        <div className={INPUTWRAPPER}>
+                        {/* ✅ FIX: full width wrapper so date input doesn't clip */}
+                        <div className={`${INPUTWRAPPER} w-full`}>
                             <input
                                 type='date'
                                 name='dueDate'
                                 value={formData.dueDate}
                                 onChange={handleChange}
-                                className='flex-1 text-sm outline-none text-gray-700'
+                                className='flex-1 text-sm outline-none text-gray-700 w-full'
                             />
                         </div>
                     </div>
 
-                    {/* Completed toggle edit mode only */}
+                    {/* Completed toggle - edit mode only */}
                     {task && (
                         <div className='flex items-center gap-3'>
                             <input
@@ -170,7 +174,8 @@ const TaskModal = ({ onClose, onSave, task }) => {
                 </div>
 
                 {/* Footer */}
-                <div className='flex items-center gap-3 p-5 border-t border-purple-100'>
+                {/* ✅ FIX: sticky footer so buttons always visible when keyboard opens on mobile */}
+                <div className='flex items-center gap-3 px-4 py-4 sm:p-5 border-t border-purple-100 sticky bottom-0 bg-white'>
                     <button onClick={onClose}
                         className='flex-1 py-2.5 rounded-lg border border-purple-200 text-purple-600 text-sm font-medium hover:bg-purple-50 transition-colors'>
                         Cancel
