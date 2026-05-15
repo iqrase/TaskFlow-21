@@ -14,26 +14,32 @@ const Layout = ({ onLogout, user }) => {
     const [mobileOpen, setMobileOpen] = useState(false)
 
     const fetchTasks = useCallback(async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            const token = localStorage.getItem('token')
-            if (!token) throw new Error("No auth token found")
-            const { data } = await axios.get("http://localhost:4001/api/tasks", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            const arr = Array.isArray(data) ? data :
-                Array.isArray(data?.tasks) ? data.tasks :
-                    Array.isArray(data?.data) ? data.data : []
-            setTasks(arr)
-        } catch (err) {
-            console.error(err);
-            setError(err.message || "Could not load tasks")
-            if (err.response?.status === 401) onLogout()
-        } finally {
-            setLoading(false)
+    setLoading(true)
+    setError(null)
+    try {
+        const token = localStorage.getItem('token')
+        if (!token) throw new Error("No auth token found")
+
+        const { data } = await axios.get("http://localhost:4001/api/tasks", {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        const arr = Array.isArray(data) ? data :
+            Array.isArray(data?.tasks) ? data.tasks :
+            Array.isArray(data?.data) ? data.data : []
+        setTasks(arr)
+    } catch (err) {
+        console.error(err)
+        setError(err.response?.data?.message || err.message || "Could not load tasks")
+    
+        if (err.response?.status === 401) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('currentUser')
+            onLogout()
         }
-    }, [onLogout])
+    } finally {
+        setLoading(false)
+    }
+}, [onLogout])
 
     useEffect(() => { fetchTasks() }, [fetchTasks])
 
@@ -83,13 +89,6 @@ const Layout = ({ onLogout, user }) => {
             <Navbar user={user} onLogout={onLogout} onMenuClick={() => setMobileOpen(true)} />
             <Sidebar user={user} tasks={tasks} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
-            {/*
-                BREAKPOINT STRATEGY:
-                mobile  <640px  : full width, no offset, single col, small padding
-                tablet  640-1023: full width, no offset, single col, medium padding
-                desktop 1024px+ : lg:ml-64 sidebar offset, single col content
-                xl      1280px+ : 3-col grid — content takes 2 cols, stats takes 1
-            */}
             <div className='pt-16 lg:ml-64 transition-all duration-300'>
                 <div className='p-3 sm:p-4 lg:p-6'>
                     <div className='grid grid-cols-1 xl:grid-cols-3 xl:gap-6'>

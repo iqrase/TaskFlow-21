@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
+import User from '../models/User.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here';
 
@@ -18,7 +18,7 @@ export default async function authMiddleware(req, res, next){
 
     try {
         const payload = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(payload.id).select('-password');
+        const user = await User.findById(payload.userId).select('-password');
 
         if(!user) {
             return res.status(401).json({success: false, message: "User not found"});
