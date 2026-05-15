@@ -13,7 +13,7 @@ const port = process.env.PORT || 4001;
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://task-flow-eight-taupe.vercel.app'
+    'https://task-flow-eight-taupe.vercel.app',
     'https://task-flow-62u0jgdfl-iqrases-projects.vercel.app'
   ],
   credentials: true
