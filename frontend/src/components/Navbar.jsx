@@ -32,12 +32,12 @@ const Navbar = ({ user = {}, onLogout, onMenuClick }) => {
                     {/* LOGO */}
                     <div className='flex items-center gap-1.5 cursor-pointer group'
                         onClick={() => navigate('/')}>
-                        {/* ✅ FIX: smaller icon box on mobile */}
+                        
                         <div className='relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500 shadow-lg group-hover:shadow-purple-300/50 group-hover:scale-105 transition-all duration-300'>
                             <Zap className='w-4 h-4 sm:w-6 sm:h-6 text-white' />
                             <div className='absolute -bottom-1 w-2.5 h-2.5 bg-white rounded-full shadow-md animate-ping' />
                         </div>
-                        {/* ✅ FIX: smaller text on mobile */}
+                        
                         <span className='text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-fuchsia-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent tracking-wide'>
                             TaskFlow
                         </span>
@@ -79,7 +79,7 @@ const Navbar = ({ user = {}, onLogout, onMenuClick }) => {
                             <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 transition-transform duration-300 ${menuOpen ? 'rotate-180' : ''}`} />
                         </button>
 
-                        {/* ✅ FIX: dropdown width capped and right-aligned so it never goes off screen */}
+                        
                         {menuOpen && (
                             <ul className='absolute top-12 right-0 w-48 sm:w-56 bg-white rounded-2xl shadow-xl border border-purple-100 z-50 overflow-hidden'>
                                 <li className='p-2'>

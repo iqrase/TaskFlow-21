@@ -3,7 +3,7 @@ import axios from 'axios'
 import { X, Plus, Save } from 'lucide-react'
 import { BUTTON_CLASSES, INPUTWRAPPER } from '../assets/dummy.jsx'
 
-const API_BASE = 'http://localhost:4001/api/tasks'
+const API_BASE = 'https://taskflow-l80a.onrender.com/api/tasks'
 
 const TaskModal = ({ onClose, onSave, task }) => {
 

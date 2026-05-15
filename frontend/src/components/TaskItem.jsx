@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { Trash2, Edit, CheckCircle, Circle, Calendar, Flag } from 'lucide-react'
 
-const API_BASE = 'http://localhost:4001/api/tasks'
+const API_BASE = 'https://taskflow-l80a.onrender.com/api/tasks'
 
 const TaskItem = ({ task, onRefresh, onEdit, showCompleteCheckbox }) => {
 

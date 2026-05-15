@@ -45,8 +45,7 @@ export const BACK_BUTTON = 'flex items-center text-purple-600 hover:text-purple-
 
 export const HEADER = 'flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-6'
 
-// Padding: small on mobile, comfortable on tablet+, roomy on desktop
-// No overflow-x-hidden here — parent Layout handles that
+
 export const WRAPPER = 'px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-5 w-full'
 
 // Add Task button

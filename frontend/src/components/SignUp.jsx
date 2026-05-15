@@ -9,7 +9,7 @@ const InputWrapper = ({ label, children }) => (
     </div>
 )
 
-const API_URL = "http://localhost:4001"
+const API_URL = "https://taskflow-l80a.onrender.com"
   const INITIAL_FORM = { name: "", email:"", password:"" }
 
   const FIELDS = [  
