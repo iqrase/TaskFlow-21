@@ -142,5 +142,70 @@ export const markNotificationRead = async (req, res) => {
   }
 }
 
+// GET ANALYTICS OVERVIEW
+export const getAnalyticsOverview = async (req, res) => {
+  try {
+    const tasks = await Task.find({ owner: req.user._id })
+    const total = tasks.length
+    const completed = tasks.filter(t => t.completed).length
+    const pending = tasks.filter(t => !t.completed).length
+    const overdue = tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate) < new Date()).length
+    const high = tasks.filter(t => t.priority?.toLowerCase() === 'high').length
+    const medium = tasks.filter(t => t.priority?.toLowerCase() === 'medium').length
+    const low = tasks.filter(t => t.priority?.toLowerCase() === 'low').length
+
+    res.json({
+      success: true,
+      overview: { total, completed, pending, overdue, high, medium, low }
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message })
+  }
+}
+
+// GET ANALYTICS TRENDS (weekly)
+export const getAnalyticsTrends = async (req, res) => {
+  try {
+    const tasks = await Task.find({ owner: req.user._id })
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const weekly = days.map(day => ({ day, completed: 0, pending: 0 }))
+
+    tasks.forEach(task => {
+      const dayIndex = new Date(task.createdAt).getDay()
+      if (task.completed) {
+        weekly[dayIndex].completed++
+      } else {
+        weekly[dayIndex].pending++
+      }
+    })
+
+    // Monthly trends (last 6 months)
+    const months = []
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date()
+      date.setMonth(date.getMonth() - i)
+      const monthName = date.toLocaleString('default', { month: 'short' })
+      const year = date.getFullYear()
+      const month = date.getMonth()
+
+      const monthTasks = tasks.filter(t => {
+        const d = new Date(t.createdAt)
+        return d.getMonth() === month && d.getFullYear() === year
+      })
+
+      months.push({
+        month: monthName,
+        completed: monthTasks.filter(t => t.completed).length,
+        pending: monthTasks.filter(t => !t.completed).length
+      })
+    }
+
+    res.json({ success: true, weekly, monthly: months })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message })
+  }
+}
+
 
 

@@ -51,10 +51,10 @@ export const WRAPPER = 'px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-5 w-full'
 // Add Task button
 export const ADD_BUTTON = 'flex items-center gap-1.5 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white px-3 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-xs sm:text-sm whitespace-nowrap shrink-0'
 
-// Stats grid: 2 cols on mobile, 4 cols on md+
+
 export const STATS_GRID = 'grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 w-full'
 
-// Stat card: no overflow-hidden (was clipping colored borders)
+
 export const STAT_CARD = 'p-2 sm:p-3 lg:p-4 rounded-xl bg-white border shadow-sm min-w-0'
 
 export const ICON_WRAPPER = 'w-7 h-7 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center shrink-0'
@@ -73,10 +73,10 @@ export const FILTER_LABELS = {
 }
 export const FILTER_OPTION = ['all', 'today', 'week', 'high', 'medium', 'low']
 
-// Dropdown: visible on mobile & tablet (<lg), hidden on lg+
+
 export const SELECT_CLASSES = 'text-xs sm:text-sm border border-purple-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400 lg:hidden'
 
-// Tab bar: hidden on mobile & tablet (<lg), visible on lg+
+
 export const TABS_WRAPPER = 'hidden lg:flex items-center gap-1 flex-wrap'
 export const TAB_BASE = 'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200'
 export const TAB_ACTIVE = 'bg-purple-100 text-purple-700'
@@ -125,4 +125,11 @@ export const STATS = [
         valueKey: 'highPriority',
         textColor: 'text-red-500',
     },
+]
+
+export const menuItems = [
+    { text: 'Dashboard',       path: '/dashboard',  icons: <LayoutDashboard className="w-5 h-5" /> },
+    { text: 'Pending Tasks',   path: '/pending',    icons: <CheckSquare className="w-5 h-5" /> },
+    { text: 'Completed Tasks', path: '/completed',  icons: <CheckCircle className="w-5 h-5" /> },
+    { text: 'Analytics',       path: '/analytics',  icons: <BarChart2 className="w-5 h-5" /> },  // ✅ here
 ]
