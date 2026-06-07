@@ -17,12 +17,13 @@ const Navbar = ({ user = {}, onLogout, onMenuClick }) => {
     const fetchNotifications = async () => {
         try {
             const token = localStorage.getItem('token')
+            if (!token) return  
             const { data } = await axios.get(`${API_BASE}/api/tasks/notifications`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
             if (data.success) setNotifications(data.notifications)
         } catch (err) {
-            console.error('Failed to fetch notifications', err)
+          console.error('Failed to fetch notifications', err)
         }
     }
 
