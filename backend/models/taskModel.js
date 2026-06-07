@@ -12,7 +12,7 @@ const taskSchema = new mongoose.Schema({
   priority: {
     type: String,
     enum: ['low', 'medium', 'high'],
-    default: 'Low'
+    default: 'low'
   },
   dueDate: {
     type: Date
@@ -23,8 +23,14 @@ const taskSchema = new mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  // ✅ NEW — task sharing
+  sharedWith: [{
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }
+  }]
 }, {
   timestamps: true
 });
