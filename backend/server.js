@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import { connectDB } from './config/db.js'
 
 import userRouter from './routes/userRoute.js'
@@ -8,6 +10,7 @@ import taskRouter from './routes/taskRoute.js'
 import authRoutes from './routes/auth.js'
 
 const app = express();
+const httpServer = createServer(app)
 const port = process.env.PORT || 4001;
 
 app.use(cors({
@@ -35,11 +38,37 @@ app.get('/', (req, res) => {
     res.send('API WORKING');
 })
 
-// Only listen in development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server Started on http://localhost:${port}`)
-  })
-}
+// SOCKET.IO
+export const onlineUsers = new Map()
 
-export default app;
+const io = new Server(httpServer, {
+  cors: {
+    origin: [
+      'http://localhost:5173',
+      'https://task-flow-eight-taupe.vercel.app',
+      'https://task-flow-62u0jgdfl-iqrases-projects.vercel.app'
+    ],
+    credentials: true
+  }
+})
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id)
+
+  socket.on('join', (userId) => {
+    onlineUsers.set(userId, socket.id)
+    console.log('User joined:', userId)
+  })
+
+  socket.on('disconnect', () => {
+    onlineUsers.forEach((value, key) => {
+      if (value === socket.id) onlineUsers.delete(key)
+    })
+  })
+})
+
+export { io }
+
+httpServer.listen(port, () => {
+    console.log(`Server Started on http://localhost:${port}`)
+})
