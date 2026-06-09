@@ -35,6 +35,12 @@ export const TIP_CARD = {
     text: 'text-xs text-purple-500 mt-0.5',
 }
 
+export const menuItems = [
+    { text: 'Dashboard',       path: '/dashboard',  icons: <LayoutDashboard className="w-5 h-5" /> },
+    { text: 'Pending Tasks',   path: '/pending',    icons: <CheckSquare className="w-5 h-5" /> },
+    { text: 'Completed Tasks', path: '/completed',  icons: <CheckCircle className="w-5 h-5" /> },
+]
+
 export const BACK_BUTTON = 'flex items-center text-purple-600 hover:text-purple-800 mb-6 font-medium'
 
 export const HEADER = 'flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-6'
