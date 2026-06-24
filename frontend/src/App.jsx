@@ -27,15 +27,16 @@ const App = () => {
     }
   })
 
+  
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
-      setCurrentUser(null)
-      localStorage.removeItem('currentUser')
-      return
+        setCurrentUser(null)
+        localStorage.removeItem('currentUser')
+        return
     }
     if (currentUser) {
-      localStorage.setItem('currentUser', JSON.stringify(currentUser))
+        localStorage.setItem('currentUser', JSON.stringify(currentUser))
     }
   }, [currentUser])
 
