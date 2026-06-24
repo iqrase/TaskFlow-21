@@ -1,4 +1,4 @@
- i mport jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
 
