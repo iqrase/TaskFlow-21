@@ -20,8 +20,11 @@ const App = () => {
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
+      const token = localStorage.getItem('token')
       const stored = localStorage.getItem('currentUser')
-      return stored ? JSON.parse(stored) : null
+      
+      if (token && stored) return JSON.parse(stored)
+      return null
     } catch {
       return null
     }
@@ -29,33 +32,24 @@ const App = () => {
 
   
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-        setCurrentUser(null)
-        localStorage.removeItem('currentUser')
-        return
-    }
     if (currentUser) {
-        localStorage.setItem('currentUser', JSON.stringify(currentUser))
+      localStorage.setItem('currentUser', JSON.stringify(currentUser))
     }
   }, [currentUser])
 
   const handleAuthSubmit = (data) => {
-    
     const token = data.token || data.data?.token
     const name = data.name || data.user?.name || 'User'
     const email = data.email || data.user?.email || ''
 
-    if (token) {
-      localStorage.setItem('token', token)
-    } else {
+    if (!token) {
       console.warn("No token received!", data)
-      return 
+      return
     }
 
-    const user = {
-      email,
-      name,
+    localStorage.setItem('token', token)
+
+    const user = { email, name,
       avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
     }
 
@@ -73,10 +67,9 @@ const App = () => {
 
   return (
     <Routes>
-      {/* AUTH ROUTES */}
       <Route path='/login' element={
         currentUser
-          ? <Navigate to='/dashboard' replace /> 
+          ? <Navigate to='/dashboard' replace />
           : <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
               <Login onSubmit={handleAuthSubmit} onSwitchMode={() => navigate('/signup')} />
             </div>
@@ -90,7 +83,6 @@ const App = () => {
             </div>
       } />
 
-      {/* PROTECTED ROUTES */}
       <Route element={
         currentUser
           ? <ProtectedLayout user={currentUser} onLogout={handleLogout} />
@@ -100,13 +92,12 @@ const App = () => {
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/pending' element={<PendingPage />} />
         <Route path='/completed' element={<CompletePage />} />
-        <Route path='/analytics' element={<AnalyticsPage />} />  
+        <Route path='/analytics' element={<AnalyticsPage />} />
         <Route path='/profile' element={
           <Profile user={currentUser} setCurrentUser={setCurrentUser} onLogout={handleLogout} />
         } />
-      </Route> 
+      </Route>
 
-      {/* CATCH ALL */}
       <Route path='*' element={<Navigate to={currentUser ? '/dashboard' : '/login'} replace />} />
     </Routes>
   )
